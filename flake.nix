@@ -45,6 +45,15 @@
         {
           _module.args.pkgs = inputs'.nixpkgs.legacyPackages;
 
+          apps.gen-secrets.program = pkgs.stdenvNoCC.mkDerivation {
+            name = "gen-secrets";
+            dontUnpack = true;
+            installPhase = ''
+              mkdir -p $out/bin
+              install -m 0755 ${./nix/gen_secrets.sh} $out/bin/gen-secrets
+            '';
+            meta.mainProgram = "gen-secrets";
+          };
           devShells.default = mkShell {
             # Include dependencies for LVFS, these become importable by python.
             inputsFrom = [ package.devShell ];
