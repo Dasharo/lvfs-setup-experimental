@@ -31,19 +31,37 @@
       # fromJSON can't accept string with context, drop the context here,
       # we recover it down below after processing JSON.
       env = builtins.fromJSON (builtins.unsafeDiscardStringContext envFileWithContext);
-      env' =
-        lib.mapAttrs (
-          k: v:
-          # Recover the context, required so that all dependencies are properly
-          # propagated to the container.
-          builtins.appendContext v (builtins.getContext envFileWithContext)
-        ) env
-        // {
-          LD_LIBRARY_PATH = "${pkgs.gnutls.out}/lib";
-          # See the comment in lvfs.nix
-          LVFS_INSTANCE_PATH = "/data";
-        };
-      filteredEnv = lib.filterAttrs (k: v: lib.elem k envWhitelist) env';
+      env' = lib.mapAttrs (
+        k: v:
+        # Recover the context, required so that all dependencies are properly
+        # propagated to the container.
+        builtins.appendContext v (builtins.getContext envFileWithContext)
+      ) env;
+      filteredEnv = lib.filterAttrs (k: v: lib.elem k envWhitelist) env' // {
+        LD_LIBRARY_PATH = "${pkgs.gnutls.out}/lib";
+        # See the comment in lvfs.nix
+        LVFS_INSTANCE_PATH = "/data";
+      };
+      gunicornConfig = pkgs.writeTextFile {
+        name = "gunicorn.py";
+        # Basically same as upstream gunicorn.py but without `user` and `group` options
+        # because of 2 reasons:
+        # - for development it may be desirable to run as same user that invokes docker
+        # - changing user/group typically requires root privilege inside container
+        #   which won't be the case if container is already running as different
+        #   user (such as when using Docker's -u option).
+        text = ''
+          chdir = "${self'.packages.default}"
+          wsgi_app = "wsgi:app"
+          workers = 8
+          worker_class = "gevent"
+          timeout = 2400
+          bind = "[::0]:5000"
+          loglevel = "info"
+          accesslog = "-"
+          x_forwarded_for_header = True
+        '';
+      };
       lvfsInit = pkgs.writeShellScript "lvfs-init" ''
         set -euo pipefail
 
@@ -69,6 +87,8 @@
 
         echo "ensuring setting defaults"
         flask settings-create
+
+        gunicorn --config ${gunicornConfig} wsgi:app
       '';
     in
     {
