@@ -46,11 +46,11 @@
           _module.args.pkgs = inputs'.nixpkgs.legacyPackages;
 
           devShells.default = mkShell {
-            # Include dependencies for LVFS
+            # Include dependencies for LVFS, these become importable by python.
             inputsFrom = [ package.devShell ];
-            # And LVFS itself
-            packages = [ package ];
             env.LD_LIBRARY_PATH = "${pkgs.gnutls.out}/lib";
+            env.LVFS_APP_PATH = package;
+            env.FLASK_APP = "${package}/lvfs/__init__.py";
           };
           packages.default = package;
         };
