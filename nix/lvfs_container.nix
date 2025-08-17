@@ -17,7 +17,8 @@
         buildInputs = [ self'.packages.default ];
         buildPhase = ''
           set -e
-          export FLASK_APP="$(python -c 'import importlib.util; print(importlib.util.find_spec("lvfs").origin, end="")')"
+          export FLASK_APP="${self'.packages.default}/lvfs/__init__.py"
+          cd ${self'.packages.default}
           env -0 | ${lib.getExe pkgs.jq} -Rrs 'split("\u0000") | map(split("=")) | map(select(.[0] != null)) | map({(.[0]): (.[1:] | join("="))}) | add' > $out
         '';
       };
@@ -27,11 +28,9 @@
         "PYTHONPATH"
         "FLASK_APP"
       ];
-      env = lib.filterAttrs (k: v: lib.elem k envWhitelist) (
-        # fromJSON can't accept string with context, drop the context here,
-        # we recover it down below after processing JSON.
-        builtins.fromJSON (builtins.unsafeDiscardStringContext envFileWithContext)
-      );
+      # fromJSON can't accept string with context, drop the context here,
+      # we recover it down below after processing JSON.
+      env = builtins.fromJSON (builtins.unsafeDiscardStringContext envFileWithContext);
       env' =
         lib.mapAttrs (
           k: v:
@@ -44,6 +43,7 @@
           # See the comment in lvfs.nix
           LVFS_INSTANCE_PATH = "/data";
         };
+      filteredEnv = lib.filterAttrs (k: v: lib.elem k envWhitelist) env';
       lvfsInit = pkgs.writeShellScript "lvfs-init" ''
         set -euo pipefail
 
@@ -65,7 +65,7 @@
         fi
 
         echo "upgrading database"
-        # flask db upgrade
+        flask db upgrade
 
         echo "ensuring setting defaults"
         flask settings-create
@@ -76,7 +76,9 @@
         name = "lvfs";
         tag = "latest";
         config = {
-          Env = lib.mapAttrsToList (n: v: "${n}=${v}") env';
+          # Set workdir to lvfs-website location so that Flask-Migrate works.
+          WorkingDir = env'.PWD;
+          Env = lib.mapAttrsToList (n: v: "${n}=${v}") filteredEnv;
           entrypoint = [
             "${lib.getExe pkgs.bash}"
             "-i"

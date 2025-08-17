@@ -41,34 +41,28 @@ in
       substituteInPlace lvfs/__init__.py \
         --replace-fail 'app: Flask = Flask(__name__)' 'app: Flask = Flask(__name__, instance_path=os.environ.get("LVFS_INSTANCE_PATH", None))'
     '';
-    preConfigure = ''
-      cat >> pyproject.toml <<EOF
-      [project]
-      name = "lvfs"
-      version = "1.0"
-
-      [tool.setuptools]
-      include-package-data = true
-
-      [tool.setuptools.packages.find]
-      where = ["."]
-      include = [
-        "lvfs", "lvfs.*",
-        "jcat", "pkgversion"
-      ]
-
-      [tool.setuptools.package-data]
-      lvfs = ["**/*"]
-      EOF
-    '';
     nativeCheckInputs = [ deps.gnutls.out ];
-    preBuild = ''
+
+    # Don't package as wheel as it doesn't play well with LVFS app:
+    # - pyproject.toml lacks required metadata
+    # - even after hacking pyproject.toml Flask-Migrate looks for migrations folder
+    #   in CWD so we would have to always call from site-packages directory
+    dontBuild = true;
+    installPhase = ''
+      runHook preInstall
+      mkdir $out
+      cp -r * $out/
+      runHook postInstall
+    '';
+
+    # Required for pythonImportsCheck to work
+    postInstall = ''
       export "LD_LIBRARY_PATH=${deps.gnutls.out}/lib:$LD_LIBRARY_PATH"
     '';
   };
   buildPythonPackage = {
-    pyproject = true;
     pythonImportsCheck = [ "lvfs" ];
+    format = "other";
   };
   pip = {
     requirementsFiles = [ "${config.mkDerivation.src}/requirements.txt" ];
