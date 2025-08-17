@@ -17,6 +17,11 @@ services:
         protocol: tcp
         target: 5000
         published: 5000
+    volumes:
+      - type: volume
+        read_only: false
+        source: lvfs_data
+        target: /data
 
 secrets:
   secret_key:
@@ -25,3 +30,5 @@ secrets:
     file: secrets/secret_vendor_salt
   secret_addr_salt:
     file: secrets/secret_addr_salt
+volumes:
+  lvfs_data:
