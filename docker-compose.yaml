@@ -3,11 +3,21 @@ services:
     image: lvfs:latest
     environment:
       LVFS_HOST_NAME: localhost
-      LVFS_CDN_DOMAIN: localhost
+      # Must be set properly. hostname part should be externally-reachable
+      # hostname (or IP address) e.g. lvfs.3mdeb.com, port must match with port
+      # mapping below (the `published` port is the externally reachable port).
+      # If using SSL scheme should be changed to https://
+      LVFS_CDN_DOMAIN: http://localhost:5000
     secrets:
       - secret_key
       - secret_vendor_salt
       - secret_addr_salt
+    ports:
+      - name: LVFS wsgi
+        protocol: tcp
+        target: 5000
+        published: 5000
+
 secrets:
   secret_key:
     file: secrets/secret_key
