@@ -19,7 +19,8 @@ Run it
 docker compose up
 ```
 
-To login into LVFS instance use user `sign-test@fwupd.org` and password `Pa$$w0rd`.
+To login into LVFS instance go to [http://localhost:5000](http://localhost:5000),
+then use user `sign-test@fwupd.org` and password `Pa$$w0rd`.
 
 > Note: default user and password is initialized from `lvfs/dbutils.py:init_db`
 > and is always as above.
