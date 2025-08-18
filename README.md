@@ -27,6 +27,39 @@ then use user `sign-test@fwupd.org` and password `Pa$$w0rd`.
 
 ![](img/lvfs_welcome_screen.png)
 
+## Basic configuration
+
+Go to `Plugins -> General` and change `Firmware BaseURI` to point to correct URL.
+If running on localhost, this should be `http://localhost:5000/downloads`. You
+may also want to clear `Server Warning`.
+
+![](img/lvfs_general_settings.png)
+
+## Adding vendors and users
+
+- start by going to `Vendors -> Overview` (left-side panel).
+- put Vendor ID into `Group ID` field, this can be any string, e.g. `3mdeb` and
+  click `Add` button
+- fill `Vendor Name` and `Legal Name` fields, scroll down and click `Save`
+
+![](img/lvfs_add_vendor.png)
+
+- go to the `Users` tab, fill `Username` (should be email) and `Display Name`
+  fields, click `Add` button
+![](img/lvfs_add_user.png)
+
+- click `Details` button of newly created user
+
+![](img/lvfs_user_list.png)
+
+- fill the `Password` field
+- select `Allowed to move firmware to the public testing and stable remotes`
+- select `Read-only access to all firmware and reports in the 3mdeb group`
+- select `Allowed to modify all the firmware uploaded to the 3mdeb group`
+- save the changes
+
+![](img/lvfs_user_mod.png)
+
 ## Updating LVFS release
 
 First, you need to manually edit `nix/lvfs.nix`. In the section:
@@ -77,3 +110,23 @@ container does build:
 ```shell
 nix build -L --no-link
 ```
+
+## Caveats
+
+The configuration used in this repo is based on upstream
+`docker/files/application/flaskapp.cfg` which is intended for production,
+however there are some unsolved issues:
+
+- everything marked as `TODO`, `FIXME` or `HACK`
+- OAuth2 plugin should be either configured (if needed) or disabled, currently
+  it is left in broken state failing with `No oauth client` when attempting
+  login, yet it may still be a security risk.
+- should run unittests/integration tests during build of Nix package
+- database migration/upgrade is untested, probably requires setting `GIT_HASH`
+  to work properly (see `docker/files/lvfs-entrypoint.sh` from upstream).
+- SMTP is left unconfigured
+- we use SQLite database instead of PostgreSQL because it's easier to setup.
+  This is possible because SQLAlchemy (the frontend used by `lvfs-website`)
+  supports multiple databases, however I don't know to what extent SQLAlchemy
+  abstracts away differences between implementations so some issues are to be
+  expected.
