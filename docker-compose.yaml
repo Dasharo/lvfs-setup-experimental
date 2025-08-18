@@ -22,6 +22,9 @@ services:
         read_only: false
         source: lvfs_data
         target: /data
+      - type: tmpfs
+        target: /tmp
+    read_only: true
 
 secrets:
   secret_key:
