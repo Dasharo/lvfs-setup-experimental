@@ -32,6 +32,14 @@ in
     # parameters through env variables and docker's secrets.
     postPatch = ''
       cp ${./flaskapp.cfg} lvfs/flaskapp.cfg
+
+      # Flask has concept of instance path which is used for storing data and Flask-SQLAlchemy
+      # treats all paths as relative to instance path. By default instance path is set to
+      # app module location which in this case is path pointing somewhere to Nix store.
+      # This results in confusing errors when trying to create SQLite database at /data/lvfs.db
+      # as the path becomes invalid after prepending instance path.
+      substituteInPlace lvfs/__init__.py \
+        --replace-fail 'app: Flask = Flask(__name__)' 'app: Flask = Flask(__name__, instance_path=os.environ.get("LVFS_INSTANCE_PATH", None))'
     '';
     preConfigure = ''
       cat >> pyproject.toml <<EOF

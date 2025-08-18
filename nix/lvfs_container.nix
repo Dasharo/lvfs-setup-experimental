@@ -41,6 +41,8 @@
         ) env
         // {
           LD_LIBRARY_PATH = "${pkgs.gnutls.out}/lib";
+          # See the comment in lvfs.nix
+          LVFS_INSTANCE_PATH = "/data";
         };
       lvfsInit = pkgs.writeShellScript "lvfs-init" ''
         set -euo pipefail
@@ -51,16 +53,14 @@
           exec "$@"
         fi
 
-        LVFS_DB_SERVER="''${LVFS_DB_SERVER:-sqlite:///data/lvfs.db}"
-        if "$LVFS_DB_SERVER" | grep -qE '^sqlite://'; then
-          path="''${LVFS_DB_SERVER#sqlite://}"
-          echo "===== path $path"
+        LVFS_DB_SERVER="''${LVFS_DB_SERVER:-sqlite:///lvfs.db}"
+        if echo "$LVFS_DB_SERVER" | grep -qE '^sqlite://'; then
+          path="$LVFS_INSTANCE_PATH/''${LVFS_DB_SERVER#sqlite://}"
           if ! [ -e "$path" ]; then
-            echo "initializing new sqlite database"
-            touch "$path"
+            echo "initializing new sqlite database at $path"
             flask initdb
             flask db stamp
-            flask db upgrade
+            echo "DB init done"
           fi
         fi
 
