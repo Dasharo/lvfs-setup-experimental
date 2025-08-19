@@ -56,6 +56,9 @@
             installPhase = ''
               mkdir -p $out/bin
               install -m 0755 ${./nix/gen_secrets.sh} $out/bin/gen-secrets
+              substituteInPlace $out/bin/gen-secrets \
+                --replace-fail '#!/usr/bin/env bash' '#!${pkgs.runtimeShell}' \
+                --replace-fail 'python3' '${pkgs.lib.getExe pkgs.python312}'
             '';
             meta.mainProgram = "gen-secrets";
           };
