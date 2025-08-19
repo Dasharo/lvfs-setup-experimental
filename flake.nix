@@ -25,7 +25,12 @@
 
       systems = nixpkgs.lib.systems.flakeExposed;
       perSystem =
-        { pkgs, inputs', ... }:
+        {
+          self',
+          pkgs,
+          inputs',
+          ...
+        }:
         let
           llvm = pkgs.llvmPackages_latest;
           stdenv = pkgs.stdenvAdapters.overrideCC llvm.stdenv llvm.clangUseLLVM;
@@ -62,6 +67,13 @@
             env.FLASK_APP = "${package}/lvfs/__init__.py";
           };
           packages.default = package;
+          packages.cabarchive = pkgs.python312Packages.callPackage ./nix/cabarchive.nix { };
+          packages.fwupd-tools = pkgs.python312Packages.callPackage ./nix/fwupd-tools.nix {
+            inherit (self'.packages) cabarchive;
+          };
+          apps.mktestkey.program = "${self'.packages.fwupd-tools}/bin/mktestkey";
+          apps.mkupdate.program = "${self'.packages.fwupd-tools}/bin/mkupdate";
+          apps.build-fwstore.program = "${self'.packages.fwupd-tools}/bin/build_fwstore";
         };
     };
 }
