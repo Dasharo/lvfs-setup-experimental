@@ -2,6 +2,9 @@
 
 > Note: instructions below are for reference only. They don't create a broken
 > LVFS instance (see below for details).
+>
+> See README.md in [tools](tools) directory for a working solution with custom
+> LVFS-like server.
 
 Before proceding make sure you have [Nix](https://nixos.org/download/) installed.
 As a next step generate secrets required by LVFS server:
