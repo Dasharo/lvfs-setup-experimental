@@ -71,7 +71,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "0x1020004" > "$tempdir/$firmware_filename"
+echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' || die "Invalid version \"$version\""
+IFS="." read -r version_major version_minor version_patch <<< "$version"
+version_component_check() {
+  if ! [[ "$1" =~ ^[0-9]+$ ]] || (( $1 > 255 )); then
+    die "Invalid version \"$version\""
+  fi
+}
+version_component_check "$version_major"
+version_component_check "$version_minor"
+version_component_check "$version_patch"
+
+printf "0x%x%02x00%02x" "$version_major" "$version_minor" "$version_patch" > "$tempdir/$firmware_filename"
 
 sha1sum="$(sha1sum "$tempdir/$firmware_filename" | awk '{ print $1 }')"
 sha256sum="$(sha256sum "$tempdir/$firmware_filename" | awk '{ print $1 }')"
