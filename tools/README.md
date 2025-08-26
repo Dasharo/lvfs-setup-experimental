@@ -199,8 +199,13 @@ fwupdmgr will refuse to update repositories without `--force` flag:
 Metadata is up to date; use --force to refresh again.
 ```
 
-LVFS uses `max-age` to set duration for which metadata is valid. I don't know
-for how long is metadata valid by default (assuming it ever expires).
+By default, metadata is re-downloaded after 24 hours, but this can be changed
+by setting `RefreshInterval` to desired value (in seconds) in `[fwupd Remote]`
+section.
+
+Also, LVFS uses `max-age` to set duration for which metadata is valid. This
+isn't directly used fwupd, but may be used CDNs (Content Delivery Networks) or
+HTTP proxies.
 
 ```shell
 curl -sS -D - https://cdn.fwupd.org/downloads/firmware.xml.zst -o /dev/null
