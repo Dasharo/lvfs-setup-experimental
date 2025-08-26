@@ -1,12 +1,12 @@
 # Creating custom LVFS instance
 
-> Note: instructions below are for reference only. They don't create a broken
+> Note: instructions below are for reference only. They don't create a working
 > LVFS instance (see below for details).
 >
 > See README.md in [tools](tools) directory for a working solution with custom
 > LVFS-like server.
 
-Before proceding make sure you have [Nix](https://nixos.org/download/) installed.
+Before proceeding make sure you have [Nix](https://nixos.org/download/) installed.
 As a next step generate secrets required by LVFS server:
 
 ```shell
@@ -43,7 +43,7 @@ may also want to clear `Server Warning`.
 
 ## Adding vendors and users
 
-- start by going to `Vendors -> Overview` (left-side panel).
+- start by going to `Vendors -> Overview` (left-side panel)
 - put Vendor ID into `Group ID` field, this can be any string, e.g. `3mdeb` and
   click `Add` button
 - fill `Vendor Name` and `Legal Name` fields, scroll down and click `Save`
@@ -70,7 +70,7 @@ may also want to clear `Server Warning`.
 
 > Note: firmware upload seems to be broken (see below)
 
-Log in as newly created and head to `Firmware -> Upload new`. You can select any
+Log in as newly created user and head to `Firmware -> Upload new`. You can select any
 file for upload, doesn't have to be an actual firmware image, use `Embargoed` as
 remote.
 
