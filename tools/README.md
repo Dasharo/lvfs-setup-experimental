@@ -10,6 +10,14 @@ This directory contains 3 tools
 - `build_fwstore.sh` - builds content-addressed store containing firmware images
   and generates metadata allowing firmware to be served over HTTP.
 
+To make testing easier, tools are packaged as Nix apps, but may be easily
+integrated without Nix as they have only a few dependencies:
+
+- `openssl` (likely to be installed on most Linux systems)
+- `fwupd`
+- `jcat-tool` (likely to be installed with fwupd)
+- `python3` with `lxml` and `cabarchive`
+
 ## Building and serving firmware
 
 Enter following commands
