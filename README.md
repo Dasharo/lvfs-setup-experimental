@@ -68,15 +68,16 @@ may also want to clear `Server Warning`.
 
 ## Uploading firmware
 
-> Note: firmware upload seems to be broken (see below)
+> Note: firmware upload is broken (see below)
 
-Log in as newly created user and head to `Firmware -> Upload new`. You can select any
-file for upload, doesn't have to be an actual firmware image, use `Embargoed` as
-remote.
+Log in as newly created user and head to `Firmware -> Upload new`.
+Unfortunately, firware upload is broken and firmware files are never processed
+by worker processes. As firmware files aren't processed anyway, you may select
+any file to upload (doesn't have to be firmware image).
 
-Unfortunately, firmware upload is not working properly, or rather accessing of
-uploaded firmware is not working, as actual firmware files are put into Docker's
-volume:
+When uploading select `Embargoed` as remote.
+
+After upload you can see files being placed in Docker volume:
 
 ```shell
 tree /var/lib/docker/volumes/lvfs-3mdeb_lvfs_data/_data
@@ -109,6 +110,12 @@ Previous uploads can be seen:
 ![](img/lvfs_prev_uploads.png)
 
 But clicking any of those links results in 404.
+
+> Note: the problem seems to be caused by worker processes never picking up
+> tasks - long-running tasks (such as processing of upload firmware images,
+> generation of metadata, and others) are delegated from main processes to one
+> of worker processes. But, for some reason, worker processes never pick up
+> tasks.
 
 ## Updating LVFS release
 
