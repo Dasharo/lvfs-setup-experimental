@@ -1,10 +1,17 @@
-# Creating custom LVFS instance
+# Providing firmware from a custom source
 
-> Note: instructions below are for reference only. They don't create a working
-> LVFS instance (see below for details).
+> [!WARNING]
 >
-> See README.md in [tools](tools) directory for a working solution with custom
-> LVFS-like server.
+> Instructions below are for reference only. They **DO NOT** create a working
+> LVFS instance (see below for details).
+
+The initial idea was to run full LVFS site, but it was never meant to be used
+this way and needs further debugging and customization.  An alternative
+solution is available in the [tools](tools) directory (see README.md there)
+which creates an LVFS-like file structure that can be served over HTTP/HTTPS and
+added to fwupd as a remote.
+
+# Creating custom LVFS instance
 
 Before proceeding make sure you have [Nix](https://nixos.org/download/) installed.
 As a next step generate secrets required by LVFS server:
