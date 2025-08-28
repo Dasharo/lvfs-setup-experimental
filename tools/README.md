@@ -191,6 +191,12 @@ You can also check HTTP server logs to see firmware was accessed:
 127.0.0.1 - - [19/Aug/2025 19:36:01] "GET /36/715b4670d0a5c5acb6b0584a0120def318e14fbb49af5352052a16caf3a91a HTTP/1.1" 200 -
 ```
 
+> Note: if you use `fwupdmgr` you should see Webcam firmware version updated to
+> 1.2.5 when calling `fwupdmgr get-devices` (changes persist until daemon
+> restart). You can also use `fwupdtool` to test update process without having
+> to start daemon, but in that case you won't see updated version (it's a fake
+> device, changes don't persist without daemon).
+
 ## Repository updates
 
 fwupdmgr will refuse to update repositories without `--force` flag:
