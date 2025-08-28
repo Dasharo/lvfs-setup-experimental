@@ -1,0 +1,2 @@
+cabarchive==0.2.4
+lxml==6.0.1
